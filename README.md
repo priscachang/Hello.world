@@ -17,41 +17,12 @@ Run the following command to generate a new `.up.sql` and `.down.sql` pair:
 ```bash
 migrate create -ext sql -dir database/scripts/migrations -seq <script_name>
 ```
-
-For example:
-
-```bash
-migrate create -ext sql -dir database/scripts/migrations -seq update_timestamp_precision
-```
-
 ### 2. Edit the generated SQL files
 - Add your schema changes to the `.up.sql` file  
 - Add rollback logic to the `.down.sql` file (optional but recommended)
-
-Example content for `update_timestamp_precision.up.sql`:
-
-```sql
-ALTER TABLE chat_message
-MODIFY created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6),
-MODIFY modified_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6);
-```
-
-Example content for `update_timestamp_precision.down.sql`:
-
-```sql
-ALTER TABLE chat_message
-MODIFY created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-MODIFY modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
-```
 
 ### 3. Run the migration
 
 ```bash
 migrate -path database/scripts/migrations -database "mysql://root:password@tcp(localhost:3306)/edubot_dev" -verbose up
-```
-
-To roll back the last migration:
-
-```bash
-migrate -path database/scripts/migrations -database "mysql://root:password@tcp(localhost:3306)/edubot_dev" -verbose down
 ```
