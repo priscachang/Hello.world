@@ -1,2 +1,57 @@
 # Hello.world
 this is my first time to learn this app
+
+# cron jobs
+To run cron jobs locally:
+- Hub Extractor - `go run service/crontasks/main.go hub-extract`
+- Export User Audio - `go run service/crontasks/main.go export-user-audio`
+- InfluxDB Migration - `go run service/crontasks/main.go migrate-to-influxdb`
+- Clean expired hub users and empty chats - `go run service/crontasks/main.go clean-expired-hub-users-and-empty-chats`
+
+# SQL Migrations
+To modify the database schema (e.g., add or update columns), follow these steps:
+
+### 1. Create a new migration script
+Run the following command to generate a new `.up.sql` and `.down.sql` pair:
+
+```bash
+migrate create -ext sql -dir database/scripts/migrations -seq <script_name>
+```
+
+For example:
+
+```bash
+migrate create -ext sql -dir database/scripts/migrations -seq update_timestamp_precision
+```
+
+### 2. Edit the generated SQL files
+- Add your schema changes to the `.up.sql` file  
+- Add rollback logic to the `.down.sql` file (optional but recommended)
+
+Example content for `update_timestamp_precision.up.sql`:
+
+```sql
+ALTER TABLE chat_message
+MODIFY created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6),
+MODIFY modified_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6);
+```
+
+Example content for `update_timestamp_precision.down.sql`:
+
+```sql
+ALTER TABLE chat_message
+MODIFY created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+MODIFY modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+```
+
+### 3. Run the migration
+
+```bash
+migrate -path database/scripts/migrations -database "mysql://root:password@tcp(localhost:3306)/edubot_dev" -verbose up
+```
+
+To roll back the last migration:
+
+```bash
+migrate -path database/scripts/migrations -database "mysql://root:password@tcp(localhost:3306)/edubot_dev" -verbose down
+```
